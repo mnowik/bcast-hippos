@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            namespace = '/test'; // change to an empty string to use the global namespace
+            // the socket.io documentation recommends sending an explicit package upon connection
+            // this is specially important when using the global namespace
+
+            // ************** TODO ************** //
+            // Connect to a socket localhost:8080/test
+            // a response is sent back with the event name 'my response'.
+            // you can log the response from the socket
+            // Here is the doc http://socket.io/docs/
+            // *************** END TODO ************* //
+
+            // *************** TODO ************* //
+            // The previous lines opened the socket.
+            // The backend has an event call 'hippo broadcast event'
+            // each time to emit a empty body to this socket, it trigger a broadcast
+            // with random coordonate.
+            //  Implement a function that trigger this broadcast.
+            // *************** END TODO ************* //
+
+        });
+    </script>
+</head>
+<body>
+    <h2>Broadcase Hippo:</h2>
+    <form id="broadcast" method="POST" action='#'>
+        <input type="submit" value="Broadcast">
+    </form>
+    <h2>Receive:</h2>
+    <div id="log"></div>
+</body>
+</html>

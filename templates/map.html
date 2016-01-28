@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <title>Shippomap</title>
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <script src='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+        <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+        <link href='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+        <style>
+          body { margin:0; padding:0; }
+          #map { position:absolute; top:0; bottom:0; width:100%; }
+        </style>
+    </head>
+    <body>
+        <div id='map'></div>
+        <script>
+            L.mapbox.accessToken = 'pk.eyJ1Ijoic2hpcHBvbWFwIiwiYSI6IjBhMWIzNjJkZmY1YjZlMDk2MzhjZjVlMDg2N2E4YTdkIn0.ODEjNQSV4WbDf47Axzj9rw';
+            var map_center = [37.09024, -95.712891];
+            var draw_duration = 700;
+            var wait_before_fadeout = 1300;
+            var fadeout_time = 300;
+            var increments = 100;
+            var line_weight = 3;
+            var map = L.mapbox.map('map', 'mapbox.dark').setView(map_center, 5);
+            var color_fedex = "#4B1388";
+            var color_ups   = "#644117";
+            var color_usps  = "#005a97";
+            var color_dhl   = "#ffcd00";
+            var color_others= "#898989";
+            var color_shippo= "#93c043";
+            var hippo_icon = L.icon({
+                iconUrl: '../static/smart_small.png',
+                iconRetinaUrl: '../static/smart_small@2x.png',
+                iconSize: [25, 25]
+            });
+            var from_location = [37.4224764, -122.0842499];
+            var to_location   = [49.55296999999999,11.33369];
+
+            function start(map, from, to, duration, increments, color_code) {
+                var marker = L.marker([], {
+                    icon: hippo_icon
+                });
+                var polyline = L.polyline([], {
+                    color: color_code,
+                    weight: line_weight
+                });
+                // set origin
+                marker_set_location(marker, from[0], from[1]);
+                line_add_location(polyline, from[0], from[1]);
+                marker.addTo(map);
+                polyline.addTo(map);
+                // get deltas
+                // todo: this is a route from left to right
+                var lat_delta = to[0] - from[0];
+                var lng_delta = to[1] - from[1];
+                var lat_increment = lat_delta / increments;
+                var lng_increment = lng_delta / increments;
+                var increment_duration = duration / increments;
+                var current_marker_location = from;
+                var current_line_location = from;
+                for (var i = 0; i < increments; i++) {
+                    current_marker_location = [current_marker_location[0] + lat_increment, current_marker_location[1] + lng_increment];
+                    current_line_location = [current_line_location[0] + lat_increment, current_line_location[1] + lng_increment];
+                    var delay = i * increment_duration;
+                    window.setTimeout(update_route, delay, marker, polyline, current_marker_location, current_line_location);
+                }
+                window.setTimeout(fadeout, duration + wait_before_fadeout, map, marker, polyline, fadeout_time);
+            }
+            function update_route(marker, line, lat, lng) {
+                line_add_location(line, lat, lng);
+                marker_set_location(marker, lat, lng);
+            };
+            function line_add_location(line, lat, lng) {
+                line.addLatLng(L.latLng( lat, lng ));
+            };
+            function line_remove(map, line) {
+                map.removeLayer(line);
+            };
+            function marker_set_location(marker, lat, lng) {
+                marker.setLatLng(L.latLng(lat, lng));
+            };
+            function marker_set_opacity(marker, opacity) {
+                marker.setOpacity(opacity);
+            };
+            function fadeout(map, marker, line, fadeout_time) {
+                var current_opacity = 1;
+                var increments = 100;
+                var opacity_increments = 1 / increments;
+                var increment_duration = fadeout_time / increments;
+                for (var i = 0; i < increments; i++) {
+                    current_opacity = current_opacity - opacity_increments;
+                    var delay = i * increment_duration;
+                    window.setTimeout(marker_set_opacity, delay, marker, current_opacity);
+                }
+                window.setTimeout(line_remove, fadeout_time/4, map, line);
+            };
+
+        $(document).ready(function(){
+            namespace = '/test';
+            // ********* TODO ********** //
+            // Receive the event 'shipment_created' and use the function start
+            // to display the packages.
+            // ********* END TODO ****** //
+        });
+
+    </script>
+    </body>
+</html>
